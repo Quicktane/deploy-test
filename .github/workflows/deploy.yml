@@ -1,0 +1,27 @@
+name: Deploy to QuickTane (smoke test)
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Tag of the service's current image to deploy (e.g. 1.29)
+        required: true
+        default: "1.29"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy
+        id: deploy
+        uses: quicktane/deploy@v1
+        with:
+          api-key: ${{ secrets.QUICKTANE_API_KEY }}   # key with only services:deploy
+          service: ${{ vars.QUICKTANE_SERVICE_ID }}    # numeric id from the dashboard URL /services/<id>
+          tag: ${{ inputs.tag }}
+
+      - name: Result
+        run: |
+          echo "status:      ${{ steps.deploy.outputs.status }}"
+          echo "url:         ${{ steps.deploy.outputs.url }}"
+          echo "fingerprint: ${{ steps.deploy.outputs.deploy-fingerprint }}"
